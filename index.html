@@ -203,6 +203,9 @@ a{color:inherit;text-decoration:none}
     </button>
   </div>
   <div class="topbar-right">
+    <button class="tbtn" id="keyBtn" aria-label="API Keys" title="Configurar API Keys">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    </button>
     <button class="tbtn" id="themeBtn" aria-label="Tema">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
@@ -302,9 +305,15 @@ a{color:inherit;text-decoration:none}
 <script>
 // ── STATE ──────────────────────────────────────────────────
 const S = {
-  pxKey:'', pbKey:'', src:'pexels', mtype:'videos', qual:'fhd',
-  q:'', page:1, pp:30, total:0, items:[], sel:new Set(), busy:false,
+  pxKey: localStorage.getItem('pxKey')||'', pbKey: localStorage.getItem('pbKey')||'', src:'pexels', mtype:'videos', qual:'fhd',
+  q:'', page:1, pp:30, total:0, items:[], sel:new Map(), busy:false,
 };
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (S.pxKey) document.getElementById('pxKey').value = S.pxKey;
+  if (S.pbKey) document.getElementById('pbKey').value = S.pbKey;
+  if (S.pxKey || S.pbKey) document.getElementById('apiBanner').style.display = 'none';
+});
 
 // ── THEME ──────────────────────────────────────────────────
 let theme='dark';
@@ -354,8 +363,15 @@ document.getElementById('saveKeys').addEventListener('click',()=>{
   S.pxKey=document.getElementById('pxKey').value.trim();
   S.pbKey=document.getElementById('pbKey').value.trim();
   if(!S.pxKey&&!S.pbKey){toast('Ingresa al menos una API key','err');return;}
+  if(S.pxKey) localStorage.setItem('pxKey', S.pxKey);
+  if(S.pbKey) localStorage.setItem('pbKey', S.pbKey);
   document.getElementById('apiBanner').style.display='none';
   toast('¡Keys guardadas! Ahora busca tus clips.');
+});
+
+document.getElementById('keyBtn').addEventListener('click',()=>{
+  document.getElementById('apiBanner').style.display='flex';
+  window.scrollTo({top:0,behavior:'smooth'});
 });
 
 // ── SOURCE TABS ───────────────────────────────────────────
@@ -375,10 +391,15 @@ document.getElementById('searchBtn').addEventListener('click',doSearch);
 document.getElementById('Q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 
 function doSearch(){
+  const k1 = document.getElementById('pxKey').value.trim();
+  const k2 = document.getElementById('pbKey').value.trim();
+  if(k1) { S.pxKey = k1; localStorage.setItem('pxKey', k1); }
+  if(k2) { S.pbKey = k2; localStorage.setItem('pbKey', k2); }
+
   const q=document.getElementById('Q').value.trim();
   if(!q){toast('Escribe una palabra clave','err');return;}
-  if(S.src==='pexels'&&!S.pxKey){toast('Necesitas tu Pexels API Key','err');return;}
-  if(S.src==='pixabay'&&!S.pbKey){toast('Necesitas tu Pixabay API Key','err');return;}
+  if(S.src==='pexels'&&!S.pxKey){toast('Falta Pexels API Key. Ábrelas con el ⚙️ arriba.','err');return;}
+  if(S.src==='pixabay'&&!S.pbKey){toast('Falta Pixabay API Key. Ábrelas con el ⚙️ arriba.','err');return;}
   S.q=q; S.page=1; S.sel.clear(); updateBulk();
   fetchData();
 }
@@ -431,7 +452,7 @@ async function apiPixabay(){
   if(j.error)throw new Error(j.error);
   if(iv)return{total:j.totalHits||0,items:(j.hits||[]).map(v=>({
     id:v.id,src:'pixabay',type:'video',
-    thumb:v.videos?.medium?.thumbnail||'',
+    thumb:v.picture_id?`https://i.vimeocdn.com/video/${v.picture_id}_600x338.jpg`:'',
     preview:v.videos?.tiny?.url||v.videos?.small?.url||'',
     author:v.user||'Pixabay',w:v.videos?.large?.width||1280,h:v.videos?.large?.height||720,
     dur:v.duration,files:v.videos||{},url:v.pageURL,
@@ -479,9 +500,10 @@ async function dlItem(item,btn){
   const{url,ext}=bestUrl(item);
   if(!url){toast('URL no disponible','err');return;}
   const fname=`clip_${item.src}_${item.id}.${ext}`;
-  const orig=btn.innerHTML;
+  const orig=btn?.innerHTML||'';
 
   function setBtn(state){
+    if(!btn)return;
     btn.disabled=state==='busy';
     if(state==='busy')btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
     else if(state==='done')btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
@@ -490,10 +512,10 @@ async function dlItem(item,btn){
   }
 
   // Add progress bar to card
-  const card=btn.closest('.card');
-  let pg=card.querySelector('.cprog');
-  if(!pg){pg=document.createElement('div');pg.className='cprog';pg.innerHTML='<div class="cprogfill"></div>';card.querySelector('.cthumb').appendChild(pg);}
-  const fill=pg.querySelector('.cprogfill');
+  const card=btn?.closest('.card');
+  let pg=card?.querySelector('.cprog');
+  if(card && !pg){pg=document.createElement('div');pg.className='cprog';pg.innerHTML='<div class="cprogfill"></div>';card.querySelector('.cthumb').appendChild(pg);}
+  const fill=pg?.querySelector('.cprogfill');
 
   setBtn('busy');
 
@@ -595,8 +617,13 @@ function renderGrid(){
     c.addEventListener('click',e=>{
       e.stopPropagation();
       const id=c.dataset.id;
-      if(S.sel.has(id)){S.sel.delete(id);c.classList.remove('on');c.closest('.card').classList.remove('sel');}
-      else{S.sel.add(id);c.classList.add('on');c.closest('.card').classList.add('sel');}
+      if(S.sel.has(id)){
+        S.sel.delete(id);c.classList.remove('on');c.closest('.card').classList.remove('sel');
+      }else{
+        const item=S.items.find(r=>String(r.id)===id);
+        if(item)S.sel.set(id,item);
+        c.classList.add('on');c.closest('.card').classList.add('sel');
+      }
       updateBulk();
     });
   });
@@ -653,13 +680,13 @@ function cardHTML(it){
 
 // ── BULK ──────────────────────────────────────────────────
 document.getElementById('bulkBtn').addEventListener('click',async()=>{
-  const items=S.items.filter(r=>S.sel.has(String(r.id)));
+  const items=Array.from(S.sel.values());
   if(!items.length)return;
   toast(`Iniciando ${items.length} descargas...`,'info');
   let done=0;
   for(const it of items){
     const b=document.querySelector(`.dlbtn[data-id="${it.id}"]`);
-    if(b)await dlItem(it,b);
+    await dlItem(it,b);
     done++;prog(Math.round(done/items.length*100));
     await new Promise(r=>setTimeout(r,800));
   }
@@ -670,7 +697,7 @@ document.getElementById('selAllBtn').addEventListener('click',()=>{
   const all=S.items.every(r=>S.sel.has(String(r.id)));
   S.items.forEach(r=>{
     const id=String(r.id);
-    if(all){S.sel.delete(id);}else{S.sel.add(id);}
+    if(all){S.sel.delete(id);}else{S.sel.set(id,r);}
     document.querySelector(`.chk[data-id="${id}"]`)?.classList.toggle('on',!all);
     document.querySelector(`.card[data-id="${id}"]`)?.classList.toggle('sel',!all);
   });
