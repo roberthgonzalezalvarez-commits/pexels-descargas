@@ -71,6 +71,10 @@ a{color:inherit;text-decoration:none}
 .ctrl label{font-size:var(--xs);color:var(--muted);font-weight:500;white-space:nowrap}
 .sel{padding:var(--s2) var(--s3);background:var(--offset);border:1px solid var(--border);border-radius:var(--r-md);font-size:var(--xs);color:var(--text);cursor:pointer;outline:none;transition:border-color var(--ease)}
 .sel:focus{border-color:var(--primary)}
+.fmt-group{display:flex;gap:2px;background:var(--offset);border-radius:var(--r-md);padding:3px;border:1px solid var(--border)}
+.fmt-btn{padding:var(--s1) var(--s2);border-radius:calc(var(--r-md) - 3px);color:var(--muted);transition:all var(--ease);display:flex;align-items:center;justify-content:center}
+.fmt-btn.on{background:var(--surface2);color:var(--text);box-shadow:0 0 0 1.5px var(--primary)}
+.fmt-btn:hover:not(.on){color:var(--text)}
 .tabs{display:flex;gap:var(--s1);background:var(--offset);border-radius:var(--r-md);padding:3px}
 .tab{padding:var(--s1) var(--s3);border-radius:calc(var(--r-md) - 3px);font-size:var(--xs);font-weight:600;color:var(--muted);transition:background var(--ease),color var(--ease)}
 .tab.on{background:var(--surface2);color:var(--text);box-shadow:var(--sh-sm)}
@@ -117,7 +121,7 @@ a{color:inherit;text-decoration:none}
 /* CARD */
 .card{background:var(--surface);border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);transition:box-shadow var(--ease),transform var(--ease),border-color var(--ease);position:relative}
 .card:hover{box-shadow:var(--sh-lg);transform:translateY(-3px);border-color:var(--primary)}
-.card.sel{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary)}
+.card.sel{border-color:#22d3ee;box-shadow:0 0 0 2px #22d3ee, 0 0 15px rgba(34,211,238,0.35);transform:scale(1.01);z-index:2}
 .cthumb{aspect-ratio:16/9;width:100%;overflow:hidden;position:relative;background:var(--offset);cursor:pointer}
 .cthumb img,.cthumb video{width:100%;height:100%;object-fit:cover;transition:opacity var(--ease)}
 .cthumb video{position:absolute;inset:0;opacity:0;transition:opacity .3s ease}
@@ -126,8 +130,8 @@ a{color:inherit;text-decoration:none}
 .cov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%);opacity:0;transition:opacity var(--ease);display:flex;align-items:flex-end;padding:var(--s3);pointer-events:none}
 .card:hover .cov{opacity:1}
 .dur{background:rgba(255,255,255,.15);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-sm);padding:2px var(--s2);font-size:var(--xs);color:#fff;font-weight:600}
-.chk{position:absolute;top:var(--s2);left:var(--s2);width:22px;height:22px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.4);border-radius:var(--r-sm);cursor:pointer;transition:background var(--ease),border-color var(--ease);display:flex;align-items:center;justify-content:center}
-.chk.on{background:var(--primary);border-color:var(--primary)}
+.chk{position:absolute;top:var(--s2);left:var(--s2);width:22px;height:22px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.4);border-radius:var(--r-sm);cursor:pointer;transition:background var(--ease),border-color var(--ease),transform var(--ease);display:flex;align-items:center;justify-content:center}
+.chk.on{background:#0891b2;border-color:#22d3ee;transform:scale(1.1)}
 .chk svg{opacity:0;transition:opacity var(--ease)}
 .chk.on svg{opacity:1}
 .csrc{position:absolute;top:var(--s2);right:var(--s2);background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border-radius:var(--r-sm);padding:2px var(--s2);font-size:10px;font-weight:700;color:#fff;letter-spacing:.04em}
@@ -220,6 +224,11 @@ a{color:inherit;text-decoration:none}
     <button class="tab" data-src="pixabay">Pixabay</button>
   </div>
   <label>Tipo: <select class="sel" id="mtype"><option value="videos">Videos</option><option value="photos">Fotos</option></select></label>
+  <div class="fmt-group" id="fmtGroup">
+    <button class="fmt-btn" data-fmt="16:9" title="Horizontal (16:9)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/></svg></button>
+    <button class="fmt-btn" data-fmt="9:16" title="Vertical (9:16)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="12" height="20" x="6" y="2" rx="2"/></svg></button>
+    <button class="fmt-btn" data-fmt="1:1" title="Cuadrado (1:1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/></svg></button>
+  </div>
   <label>Calidad: <select class="sel" id="qual"><option value="hd">HD 720p</option><option value="fhd" selected>Full HD 1080p</option><option value="4k">4K máxima</option></select></label>
   <label>Por página: <select class="sel" id="pp"><option value="15">15</option><option value="30" selected>30</option><option value="50">50</option></select></label>
   <div class="bulk">
@@ -306,7 +315,7 @@ a{color:inherit;text-decoration:none}
 // ── STATE ──────────────────────────────────────────────────
 const S = {
   pxKey: localStorage.getItem('pxKey')||'', pbKey: localStorage.getItem('pbKey')||'', src:'pexels', mtype:'videos', qual:'fhd',
-  q:'', page:1, pp:30, total:0, items:[], sel:new Map(), busy:false,
+  q:'', page:1, pp:30, total:0, items:[], sel:new Map(), busy:false, fmts:[]
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -386,6 +395,20 @@ document.getElementById('mtype').addEventListener('change',e=>S.mtype=e.target.v
 document.getElementById('qual').addEventListener('change',e=>S.qual=e.target.value);
 document.getElementById('pp').addEventListener('change',e=>S.pp=parseInt(e.target.value));
 
+document.querySelectorAll('.fmt-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    const f = b.dataset.fmt;
+    if (S.fmts.includes(f)) {
+      S.fmts = S.fmts.filter(x => x !== f);
+      b.classList.remove('on');
+    } else {
+      S.fmts.push(f);
+      b.classList.add('on');
+    }
+    if (S.q) { S.page=1; fetchData(); }
+  });
+});
+
 // ── SEARCH ────────────────────────────────────────────────
 document.getElementById('searchBtn').addEventListener('click',doSearch);
 document.getElementById('Q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
@@ -410,7 +433,18 @@ async function fetchData(){
   S.busy=true; prog(20); showSkel();
   try{
     const d=S.src==='pexels'?await apiPexels():await apiPixabay();
-    prog(80); S.items=d.items; S.total=d.total;
+    let filtered = d.items;
+    
+    if (S.fmts.length > 0) {
+      filtered = filtered.filter(it => {
+        if (!it.w || !it.h) return true; 
+        const r = it.w / it.h;
+        const o = r > 1.05 ? '16:9' : r < 0.95 ? '9:16' : '1:1';
+        return S.fmts.includes(o);
+      });
+    }
+
+    prog(80); S.items=filtered; S.total=d.total;
     renderGrid(); prog(100);
   }catch(e){
     toast('Error: '+e.message,'err');
@@ -422,9 +456,13 @@ async function fetchData(){
 
 async function apiPexels(){
   const iv=S.mtype==='videos';
-  const url=iv
+  let url=iv
     ?`https://api.pexels.com/videos/search?query=${encodeURIComponent(S.q)}&per_page=${S.pp}&page=${S.page}`
     :`https://api.pexels.com/v1/search?query=${encodeURIComponent(S.q)}&per_page=${S.pp}&page=${S.page}`;
+  if(S.fmts.length===1){
+    const o={'16:9':'landscape','9:16':'portrait','1:1':'square'}[S.fmts[0]];
+    url+=`&orientation=${o}`;
+  }
   const r=await fetch(url,{headers:{Authorization:S.pxKey}});
   if(!r.ok)throw new Error(`Pexels ${r.status}`);
   const j=await r.json();
@@ -443,9 +481,13 @@ async function apiPexels(){
 
 async function apiPixabay(){
   const iv=S.mtype==='videos';
-  const url=iv
+  let url=iv
     ?`https://pixabay.com/api/videos/?key=${S.pbKey}&q=${encodeURIComponent(S.q)}&per_page=${S.pp}&page=${S.page}`
     :`https://pixabay.com/api/?key=${S.pbKey}&q=${encodeURIComponent(S.q)}&per_page=${S.pp}&page=${S.page}&image_type=photo`;
+  if(S.fmts.length===1){
+    const po={'16:9':'horizontal','9:16':'vertical'}[S.fmts[0]];
+    if(po)url+=`&orientation=${po}`;
+  }
   const r=await fetch(url);
   if(!r.ok)throw new Error(`Pixabay ${r.status}`);
   const j=await r.json();
@@ -613,16 +655,18 @@ function renderGrid(){
   if(!items.length){g.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:var(--s10);color:var(--muted)">Sin resultados para "${q}"</div>`;return;}
   g.innerHTML=items.map(cardHTML).join('');
 
-  g.querySelectorAll('.chk').forEach(c=>{
-    c.addEventListener('click',e=>{
+  g.querySelectorAll('.cthumb').forEach(ct=>{
+    ct.addEventListener('click',e=>{
       e.stopPropagation();
-      const id=c.dataset.id;
+      const card = ct.closest('.card');
+      const id = card.dataset.id;
+      const c = card.querySelector('.chk');
       if(S.sel.has(id)){
-        S.sel.delete(id);c.classList.remove('on');c.closest('.card').classList.remove('sel');
+        S.sel.delete(id);c.classList.remove('on');card.classList.remove('sel');
       }else{
         const item=S.items.find(r=>String(r.id)===id);
         if(item)S.sel.set(id,item);
-        c.classList.add('on');c.closest('.card').classList.add('sel');
+        c.classList.add('on');card.classList.add('sel');
       }
       updateBulk();
     });
